@@ -91,9 +91,9 @@
 
 static int INIT handle_zstd_error(size_t ret, void (*error)(char *x))
 {
-	const int err = ZSTD_getErrorCode(ret);
+	const zstd_error_code err = zstd_get_error_code(ret);
 
-	if (!ZSTD_isError(ret))
+	if (!zstd_is_error(ret))
 		return 0;
 
 	switch (err) {
@@ -124,14 +124,14 @@ static int INIT decompress_single(const u8 *in_buf, long in_len, u8 *out_buf,
 				  long out_len, long *in_pos,
 				  void (*error)(char *x))
 {
-	const size_t wksp_size = ZSTD_DCtxWorkspaceBound();
+	const size_t wksp_size = zstd_dctx_workspace_bound();
 	void *wksp = large_malloc(wksp_size);
-	ZSTD_DCtx *dctx = ZSTD_initDCtx(wksp, wksp_size);
+	zstd_dctx *dctx = zstd_init_dctx(wksp, wksp_size);
 	int err;
 	size_t ret;
 
 	if (dctx == NULL) {
-		error("Out of memory while allocating ZSTD_DCtx");
+		error("Out of memory while allocating zstd_dctx");
 		err = -1;
 		goto out;
 	}
@@ -139,13 +139,13 @@ static int INIT decompress_single(const u8 *in_buf, long in_len, u8 *out_buf,
 	 * Find out how large the frame actually is, there may be junk at
 	 * the end of the frame that ZSTD_decompressDCtx() can't handle.
 	 */
-	ret = ZSTD_findFrameCompressedSize(in_buf, in_len);
+	ret = zstd_find_frame_compressed_size(in_buf, in_len);
 	err = handle_zstd_error(ret, error);
 	if (err)
 		goto out;
 	in_len = (long)ret;
 
-	ret = ZSTD_decompressDCtx(dctx, out_buf, out_len, in_buf, in_len);
+	ret = zstd_decompress_dctx(dctx, out_buf, out_len, in_buf, in_len);
 	err = handle_zstd_error(ret, error);
 	if (err)
 		goto out;
@@ -169,7 +169,7 @@ static int INIT __unzstd(unsigned char *in_buf, long in_len,
 {
 	ZSTD_inBuffer in;
 	ZSTD_outBuffer out;
-	ZSTD_frameParams params;
+	zstd_frame_header header;
 	void *in_allocated = NULL;
 	void *out_allocated = NULL;
 	void *wksp = NULL;
@@ -244,7 +244,7 @@ static int INIT __unzstd(unsigned char *in_buf, long in_len,
 	 * (8 MB), so it is important to use the actual value so as not to
 	 * waste memory when it is smaller.
 	 */
-	ret = ZSTD_getFrameParams(&params, in.src, in.size);
+	ret = zstd_get_frame_header(&header, in.src, in.size);
 	err = handle_zstd_error(ret, error);
 	if (err)
 		goto out;
@@ -253,7 +253,7 @@ static int INIT __unzstd(unsigned char *in_buf, long in_len,
 		err = -1;
 		goto out;
 	}
-	if (params.windowSize > ZSTD_WINDOWSIZE_MAX) {
+	if (header.windowSize > ZSTD_WINDOWSIZE_MAX) {
 		error("ZSTD-compressed data has too large a window size");
 		err = -1;
 		goto out;
@@ -263,9 +263,9 @@ static int INIT __unzstd(unsigned char *in_buf, long in_len,
 	 * Allocate the ZSTD_DStream now that we know how much memory is
 	 * required.
 	 */
-	wksp_size = ZSTD_DStreamWorkspaceBound(params.windowSize);
+	wksp_size = zstd_dstream_workspace_bound(header.windowSize);
 	wksp = large_malloc(wksp_size);
-	dstream = ZSTD_initDStream(params.windowSize, wksp, wksp_size);
+	dstream = zstd_init_dstream(header.windowSize, wksp, wksp_size);
 	if (dstream == NULL) {
 		error("Out of memory while allocating ZSTD_DStream");
 		err = -1;
@@ -298,7 +298,7 @@ static int INIT __unzstd(unsigned char *in_buf, long in_len,
 			in.size = in_len;
 		}
 		/* Returns zero when the frame is complete. */
-		ret = ZSTD_decompressStream(dstream, &out, &in);
+		ret = zstd_decompress_stream(dstream, &out, &in);
 		err = handle_zstd_error(ret, error);
 		if (err)
 			goto out;
