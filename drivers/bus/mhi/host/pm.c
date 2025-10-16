@@ -44,72 +44,43 @@
  */
 static struct mhi_pm_transitions const dev_state_transitions[] = {
 	/* L0 States */
-	{
-		MHI_PM_DISABLE,
-		MHI_PM_POR
-	},
-	{
-		MHI_PM_POR,
-		MHI_PM_POR | MHI_PM_DISABLE | MHI_PM_M0 |
-		MHI_PM_SYS_ERR_DETECT | MHI_PM_SHUTDOWN_PROCESS |
-		MHI_PM_LD_ERR_FATAL_DETECT | MHI_PM_FW_DL_ERR
-	},
-	{
-		MHI_PM_M0,
-		MHI_PM_M0 | MHI_PM_M2 | MHI_PM_M3_ENTER |
-		MHI_PM_SYS_ERR_DETECT | MHI_PM_SHUTDOWN_PROCESS |
-		MHI_PM_LD_ERR_FATAL_DETECT | MHI_PM_FW_DL_ERR
-	},
-	{
-		MHI_PM_M2,
-		MHI_PM_M0 | MHI_PM_SYS_ERR_DETECT | MHI_PM_SHUTDOWN_PROCESS |
-		MHI_PM_LD_ERR_FATAL_DETECT
-	},
-	{
-		MHI_PM_M3_ENTER,
-		MHI_PM_M3 | MHI_PM_SYS_ERR_DETECT | MHI_PM_SHUTDOWN_PROCESS |
-		MHI_PM_LD_ERR_FATAL_DETECT
-	},
-	{
-		MHI_PM_M3,
-		MHI_PM_M3_EXIT | MHI_PM_SYS_ERR_DETECT |
-		MHI_PM_LD_ERR_FATAL_DETECT
-	},
-	{
-		MHI_PM_M3_EXIT,
-		MHI_PM_M0 | MHI_PM_SYS_ERR_DETECT | MHI_PM_SHUTDOWN_PROCESS |
-		MHI_PM_LD_ERR_FATAL_DETECT
-	},
-	{
-		MHI_PM_FW_DL_ERR,
-		MHI_PM_FW_DL_ERR | MHI_PM_SYS_ERR_DETECT |
-		MHI_PM_SHUTDOWN_PROCESS | MHI_PM_LD_ERR_FATAL_DETECT
-	},
+	{ MHI_PM_DISABLE, MHI_PM_POR },
+	{ MHI_PM_POR, MHI_PM_POR | MHI_PM_DISABLE | MHI_PM_M0 |
+			      MHI_PM_SYS_ERR_DETECT | MHI_PM_SHUTDOWN_PROCESS |
+			      MHI_PM_LD_ERR_FATAL_DETECT | MHI_PM_FW_DL_ERR },
+	{ MHI_PM_M0, MHI_PM_M0 | MHI_PM_M2 | MHI_PM_M3_ENTER |
+			     MHI_PM_SYS_ERR_DETECT | MHI_PM_SHUTDOWN_PROCESS |
+			     MHI_PM_LD_ERR_FATAL_DETECT | MHI_PM_FW_DL_ERR },
+	{ MHI_PM_M2, MHI_PM_M0 | MHI_PM_SYS_ERR_DETECT |
+			     MHI_PM_SHUTDOWN_PROCESS |
+			     MHI_PM_LD_ERR_FATAL_DETECT },
+	{ MHI_PM_M3_ENTER, MHI_PM_M3 | MHI_PM_SYS_ERR_DETECT |
+				   MHI_PM_SHUTDOWN_PROCESS |
+				   MHI_PM_LD_ERR_FATAL_DETECT },
+	{ MHI_PM_M3,
+	  MHI_PM_M3_EXIT | MHI_PM_SYS_ERR_DETECT | MHI_PM_LD_ERR_FATAL_DETECT },
+	{ MHI_PM_M3_EXIT, MHI_PM_M0 | MHI_PM_SYS_ERR_DETECT |
+				  MHI_PM_SHUTDOWN_PROCESS |
+				  MHI_PM_LD_ERR_FATAL_DETECT },
+	{ MHI_PM_FW_DL_ERR, MHI_PM_FW_DL_ERR | MHI_PM_SYS_ERR_DETECT |
+				    MHI_PM_SHUTDOWN_PROCESS |
+				    MHI_PM_LD_ERR_FATAL_DETECT },
 	/* L1 States */
-	{
-		MHI_PM_SYS_ERR_DETECT,
-		MHI_PM_SYS_ERR_PROCESS | MHI_PM_SHUTDOWN_PROCESS |
-		MHI_PM_LD_ERR_FATAL_DETECT
-	},
-	{
-		MHI_PM_SYS_ERR_PROCESS,
-		MHI_PM_POR | MHI_PM_SHUTDOWN_PROCESS |
-		MHI_PM_LD_ERR_FATAL_DETECT
-	},
+	{ MHI_PM_SYS_ERR_DETECT, MHI_PM_SYS_ERR_PROCESS |
+					 MHI_PM_SHUTDOWN_PROCESS |
+					 MHI_PM_LD_ERR_FATAL_DETECT },
+	{ MHI_PM_SYS_ERR_PROCESS,
+	  MHI_PM_POR | MHI_PM_SHUTDOWN_PROCESS | MHI_PM_LD_ERR_FATAL_DETECT },
 	/* L2 States */
-	{
-		MHI_PM_SHUTDOWN_PROCESS,
-		MHI_PM_DISABLE | MHI_PM_LD_ERR_FATAL_DETECT
-	},
+	{ MHI_PM_SHUTDOWN_PROCESS,
+	  MHI_PM_DISABLE | MHI_PM_LD_ERR_FATAL_DETECT },
 	/* L3 States */
-	{
-		MHI_PM_LD_ERR_FATAL_DETECT,
-		MHI_PM_LD_ERR_FATAL_DETECT | MHI_PM_DISABLE
-	},
+	{ MHI_PM_LD_ERR_FATAL_DETECT,
+	  MHI_PM_LD_ERR_FATAL_DETECT | MHI_PM_DISABLE },
 };
 
-enum mhi_pm_state __must_check mhi_tryset_pm_state(struct mhi_controller *mhi_cntrl,
-						   enum mhi_pm_state state)
+enum mhi_pm_state __must_check
+mhi_tryset_pm_state(struct mhi_controller *mhi_cntrl, enum mhi_pm_state state)
 {
 	unsigned long cur_state = mhi_cntrl->pm_state;
 	int index = find_last_bit(&cur_state, 32);
@@ -284,8 +255,7 @@ int mhi_pm_m0_transition(struct mhi_controller *mhi_cntrl)
 
 	/* Ring all event rings and CMD ring only if we're in mission mode */
 	if (MHI_IN_MISSION_MODE(mhi_cntrl->ee)) {
-		struct mhi_cmd *mhi_cmd =
-			&mhi_cntrl->mhi_cmd[PRIMARY_CMD_RING];
+		struct mhi_cmd *mhi_cmd = &mhi_cntrl->mhi_cmd[PRIMARY_CMD_RING];
 
 		mhi_setup_event_rings(mhi_cntrl, false);
 
@@ -313,7 +283,7 @@ int mhi_pm_m0_transition(struct mhi_controller *mhi_cntrl)
 		read_lock_irq(&mhi_chan->lock);
 
 		/* Only ring DB if ring is not empty */
-		if (tre_ring->base && tre_ring->wp  != tre_ring->rp &&
+		if (tre_ring->base && tre_ring->wp != tre_ring->rp &&
 		    mhi_chan->ch_state == MHI_CH_STATE_ENABLED)
 			mhi_ring_chan_db(mhi_cntrl, mhi_chan);
 		read_unlock_irq(&mhi_chan->lock);
@@ -350,10 +320,9 @@ void mhi_pm_m1_transition(struct mhi_controller *mhi_cntrl)
 		/* If there are any pending resources, exit M2 immediately */
 		if (unlikely(atomic_read(&mhi_cntrl->pending_pkts) ||
 			     atomic_read(&mhi_cntrl->dev_wake))) {
-			MHI_VERB(
-				"Exiting M2, pending_pkts: %d dev_wake: %d\n",
-				atomic_read(&mhi_cntrl->pending_pkts),
-				atomic_read(&mhi_cntrl->dev_wake));
+			MHI_VERB("Exiting M2, pending_pkts: %d dev_wake: %d\n",
+				 atomic_read(&mhi_cntrl->pending_pkts),
+				 atomic_read(&mhi_cntrl->dev_wake));
 			read_lock_bh(&mhi_cntrl->pm_lock);
 			mhi_cntrl->wake_get(mhi_cntrl, true);
 			mhi_cntrl->wake_put(mhi_cntrl, true);
@@ -464,7 +433,7 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl)
 	int ret, i;
 
 	MHI_VERB("Processing disable transition with PM state: %s\n",
-		to_mhi_pm_state_str(mhi_cntrl->pm_state));
+		 to_mhi_pm_state_str(mhi_cntrl->pm_state));
 
 	mhi_reset_reg_write_q(mhi_cntrl);
 
@@ -477,8 +446,8 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl)
 
 		/* Wait for the reset bit to be cleared by the device */
 		ret = mhi_poll_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
-				 MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, 0,
-				 25000);
+					 MHICTRL_RESET_MASK,
+					 MHICTRL_RESET_SHIFT, 0, 25000);
 		if (ret)
 			MHI_ERR("Device failed to clear MHI Reset\n");
 
@@ -489,8 +458,7 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl)
 		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
 	}
 
-	MHI_VERB(
-		 "Waiting for all pending event ring processing to complete\n");
+	MHI_VERB("Waiting for all pending event ring processing to complete\n");
 	mhi_event = mhi_cntrl->mhi_event;
 	for (i = 0; i < mhi_cntrl->total_ev_rings; i++, mhi_event++) {
 		if (mhi_event->offload_ev)
@@ -511,7 +479,8 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl)
 	wake_up_all(&mhi_cntrl->state_event);
 
 	MHI_VERB("Reset all active channels and remove MHI devices\n");
-	device_for_each_child(&mhi_cntrl->mhi_dev->dev, NULL, mhi_destroy_device);
+	device_for_each_child(&mhi_cntrl->mhi_dev->dev, NULL,
+			      mhi_destroy_device);
 
 	mutex_lock(&mhi_cntrl->pm_mutex);
 
@@ -533,8 +502,8 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl)
 
 	mhi_event = mhi_cntrl->mhi_event;
 	er_ctxt = mhi_cntrl->mhi_ctxt->er_ctxt;
-	for (i = 0; i < mhi_cntrl->total_ev_rings; i++, er_ctxt++,
-		     mhi_event++) {
+	for (i = 0; i < mhi_cntrl->total_ev_rings;
+	     i++, er_ctxt++, mhi_event++) {
 		struct mhi_ring *ring = &mhi_event->ring;
 
 		/* Skip offload events */
@@ -557,8 +526,8 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl)
 			to_mhi_pm_state_str(MHI_PM_DISABLE));
 
 	MHI_VERB("Exiting with PM state: %s, MHI state: %s\n",
-		to_mhi_pm_state_str(mhi_cntrl->pm_state),
-		TO_MHI_STATE_STR(mhi_cntrl->dev_state));
+		 to_mhi_pm_state_str(mhi_cntrl->pm_state),
+		 TO_MHI_STATE_STR(mhi_cntrl->dev_state));
 
 	mutex_unlock(&mhi_cntrl->pm_mutex);
 }
@@ -572,11 +541,12 @@ static void mhi_pm_sys_error_transition(struct mhi_controller *mhi_cntrl)
 	struct mhi_cmd *mhi_cmd;
 	struct mhi_event_ctxt *er_ctxt;
 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+	bool reset_device = false;
 	int ret, i;
 
 	MHI_VERB("Transitioning from PM state: %s to: %s\n",
-		to_mhi_pm_state_str(mhi_cntrl->pm_state),
-		to_mhi_pm_state_str(MHI_PM_SYS_ERR_PROCESS));
+		 to_mhi_pm_state_str(mhi_cntrl->pm_state),
+		 to_mhi_pm_state_str(MHI_PM_SYS_ERR_PROCESS));
 
 	/* We must notify MHI control driver so it can clean up first */
 	mhi_cntrl->status_cb(mhi_cntrl, MHI_CB_SYS_ERROR);
@@ -600,8 +570,23 @@ static void mhi_pm_sys_error_transition(struct mhi_controller *mhi_cntrl)
 	/* Wake up threads waiting for state transition */
 	wake_up_all(&mhi_cntrl->state_event);
 
-	/* Trigger MHI RESET so that the device will not access host memory */
 	if (MHI_REG_ACCESS_VALID(prev_state)) {
+		/*
+		 * If the device is in PBL or SBL, it will only respond to
+		 * RESET if the device is in SYSERR state. SYSERR might
+		 * already be cleared at this point.
+		 */
+		enum mhi_state cur_state = mhi_get_mhi_state(mhi_cntrl);
+		enum mhi_ee_type cur_ee = mhi_get_exec_env(mhi_cntrl);
+
+		if (cur_state == MHI_STATE_SYS_ERR)
+			reset_device = true;
+		else if (cur_ee != MHI_EE_PBL && cur_ee != MHI_EE_SBL)
+			reset_device = true;
+	}
+
+	/* Trigger MHI RESET so that the device will not access host memory */
+	if (reset_device) {
 		u32 in_reset = -1;
 		unsigned long timeout = msecs_to_jiffies(mhi_cntrl->timeout_ms);
 
@@ -609,14 +594,13 @@ static void mhi_pm_sys_error_transition(struct mhi_controller *mhi_cntrl)
 		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
 
 		/* Wait for the reset bit to be cleared by the device */
-		ret = wait_event_timeout(mhi_cntrl->state_event,
-					 mhi_read_reg_field(mhi_cntrl,
-							    mhi_cntrl->regs,
-							    MHICTRL,
-							    MHICTRL_RESET_MASK,
-							    MHICTRL_RESET_SHIFT,
-							    &in_reset) ||
-					!in_reset, timeout);
+		ret = wait_event_timeout(
+			mhi_cntrl->state_event,
+			mhi_read_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
+					   MHICTRL_RESET_MASK,
+					   MHICTRL_RESET_SHIFT, &in_reset) ||
+				!in_reset,
+			timeout);
 		if (!ret || in_reset) {
 			MHI_ERR("Device failed to exit MHI Reset state\n");
 			goto exit_sys_error_transition;
@@ -629,8 +613,7 @@ static void mhi_pm_sys_error_transition(struct mhi_controller *mhi_cntrl)
 		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
 	}
 
-	MHI_VERB(
-		"Waiting for all pending event ring processing to complete\n");
+	MHI_VERB("Waiting for all pending event ring processing to complete\n");
 	mhi_event = mhi_cntrl->mhi_event;
 	for (i = 0; i < mhi_cntrl->total_ev_rings; i++, mhi_event++) {
 		if (mhi_event->offload_ev)
@@ -650,7 +633,8 @@ static void mhi_pm_sys_error_transition(struct mhi_controller *mhi_cntrl)
 	wake_up_all(&mhi_cntrl->state_event);
 
 	MHI_VERB("Reset all active channels and remove MHI devices\n");
-	device_for_each_child(&mhi_cntrl->mhi_dev->dev, NULL, mhi_destroy_device);
+	device_for_each_child(&mhi_cntrl->mhi_dev->dev, NULL,
+			      mhi_destroy_device);
 
 	mutex_lock(&mhi_cntrl->pm_mutex);
 
@@ -672,8 +656,8 @@ static void mhi_pm_sys_error_transition(struct mhi_controller *mhi_cntrl)
 
 	mhi_event = mhi_cntrl->mhi_event;
 	er_ctxt = mhi_cntrl->mhi_ctxt->er_ctxt;
-	for (i = 0; i < mhi_cntrl->total_ev_rings; i++, er_ctxt++,
-	     mhi_event++) {
+	for (i = 0; i < mhi_cntrl->total_ev_rings;
+	     i++, er_ctxt++, mhi_event++) {
 		struct mhi_ring *ring = &mhi_event->ring;
 
 		/* Skip offload events */
@@ -690,8 +674,8 @@ static void mhi_pm_sys_error_transition(struct mhi_controller *mhi_cntrl)
 
 exit_sys_error_transition:
 	MHI_VERB("Exiting with PM state: %s, MHI state: %s\n",
-		to_mhi_pm_state_str(mhi_cntrl->pm_state),
-		TO_MHI_STATE_STR(mhi_cntrl->dev_state));
+		 to_mhi_pm_state_str(mhi_cntrl->pm_state),
+		 TO_MHI_STATE_STR(mhi_cntrl->dev_state));
 
 	mutex_unlock(&mhi_cntrl->pm_mutex);
 }
@@ -735,9 +719,8 @@ void mhi_pm_st_worker(struct work_struct *work)
 {
 	struct state_transition *itr, *tmp;
 	LIST_HEAD(head);
-	struct mhi_controller *mhi_cntrl = container_of(work,
-							struct mhi_controller,
-							st_worker);
+	struct mhi_controller *mhi_cntrl =
+		container_of(work, struct mhi_controller, st_worker);
 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
 	int ret;
 
@@ -745,10 +728,10 @@ void mhi_pm_st_worker(struct work_struct *work)
 	list_splice_tail_init(&mhi_cntrl->transition_list, &head);
 	spin_unlock_irq(&mhi_cntrl->transition_lock);
 
-	list_for_each_entry_safe(itr, tmp, &head, node) {
+	list_for_each_entry_safe (itr, tmp, &head, node) {
 		list_del(&itr->node);
 		MHI_VERB("Handling state transition: %s\n",
-			TO_DEV_STATE_TRANS_STR(itr->state));
+			 TO_DEV_STATE_TRANS_STR(itr->state));
 
 		switch (itr->state) {
 		case DEV_ST_TRANSITION_PBL:
@@ -802,8 +785,9 @@ static bool mhi_in_rddm(struct mhi_controller *mhi_cntrl)
 {
 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
 
-	if (mhi_cntrl->rddm_image && mhi_get_exec_env(mhi_cntrl) == MHI_EE_RDDM
-	    && mhi_is_active(mhi_cntrl)) {
+	if (mhi_cntrl->rddm_image &&
+	    mhi_get_exec_env(mhi_cntrl) == MHI_EE_RDDM &&
+	    mhi_is_active(mhi_cntrl)) {
 		mhi_cntrl->ee = MHI_EE_RDDM;
 
 		MHI_ERR("RDDM event occurred!\n");
@@ -846,19 +830,19 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl)
 	/* finish reg writes */
 	mhi_force_reg_write(mhi_cntrl);
 
-	ret = wait_event_timeout(mhi_cntrl->state_event,
-				 mhi_cntrl->dev_state == MHI_STATE_M0 ||
-				 mhi_cntrl->dev_state == MHI_STATE_M1 ||
-				 MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
-				 msecs_to_jiffies(mhi_cntrl->timeout_ms));
+	ret = wait_event_timeout(
+		mhi_cntrl->state_event,
+		mhi_cntrl->dev_state == MHI_STATE_M0 ||
+			mhi_cntrl->dev_state == MHI_STATE_M1 ||
+			MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
+		msecs_to_jiffies(mhi_cntrl->timeout_ms));
 
 	read_lock_bh(&mhi_cntrl->pm_lock);
 	mhi_cntrl->wake_put(mhi_cntrl, false);
 	read_unlock_bh(&mhi_cntrl->pm_lock);
 
 	if (!ret || MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state)) {
-		MHI_ERR(
-			"Could not enter M0/M1 state");
+		MHI_ERR("Could not enter M0/M1 state");
 		return -EIO;
 	}
 
@@ -877,8 +861,7 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl)
 	new_state = mhi_tryset_pm_state(mhi_cntrl, MHI_PM_M3_ENTER);
 	if (new_state != MHI_PM_M3_ENTER) {
 		write_unlock_irq(&mhi_cntrl->pm_lock);
-		MHI_ERR(
-			"Error setting to PM state: %s from: %s\n",
+		MHI_ERR("Error setting to PM state: %s from: %s\n",
 			to_mhi_pm_state_str(MHI_PM_M3_ENTER),
 			to_mhi_pm_state_str(mhi_cntrl->pm_state));
 		return -EIO;
@@ -889,26 +872,25 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl)
 	write_unlock_irq(&mhi_cntrl->pm_lock);
 	MHI_LOG("Wait for M3 completion\n");
 
-
-	ret = wait_event_timeout(mhi_cntrl->state_event,
-				 mhi_cntrl->dev_state == MHI_STATE_M3 ||
-				 MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
-				 msecs_to_jiffies(mhi_cntrl->timeout_ms));
+	ret = wait_event_timeout(
+		mhi_cntrl->state_event,
+		mhi_cntrl->dev_state == MHI_STATE_M3 ||
+			MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
+		msecs_to_jiffies(mhi_cntrl->timeout_ms));
 
 	if (!ret) {
 		mhi_debug_reg_dump(mhi_cntrl);
 		panic("Timedout waiting for M3 ACK");
 		return -EIO;
 	} else if (MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state)) {
-		MHI_ERR(
-			"Did not enter M3 state, MHI state: %s, PM state: %s\n",
+		MHI_ERR("Did not enter M3 state, MHI state: %s, PM state: %s\n",
 			TO_MHI_STATE_STR(mhi_cntrl->dev_state),
 			to_mhi_pm_state_str(mhi_cntrl->pm_state));
 		return -EIO;
 	}
 
 	/* Notify clients about entering LPM */
-	list_for_each_entry_safe(itr, tmp, &mhi_cntrl->lpm_chans, node) {
+	list_for_each_entry_safe (itr, tmp, &mhi_cntrl->lpm_chans, node) {
 		mutex_lock(&itr->mutex);
 		if (itr->mhi_dev)
 			mhi_notify(itr->mhi_dev, MHI_CB_LPM_ENTER);
@@ -927,8 +909,8 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
 	int ret;
 
 	MHI_LOG("Entered with PM state: %s, MHI state: %s\n",
-		 to_mhi_pm_state_str(mhi_cntrl->pm_state),
-		 TO_MHI_STATE_STR(mhi_cntrl->dev_state));
+		to_mhi_pm_state_str(mhi_cntrl->pm_state),
+		TO_MHI_STATE_STR(mhi_cntrl->dev_state));
 
 	if (mhi_cntrl->pm_state == MHI_PM_DISABLE)
 		return 0;
@@ -943,7 +925,7 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
 		return 0;
 
 	/* Notify clients about exiting LPM */
-	list_for_each_entry_safe(itr, tmp, &mhi_cntrl->lpm_chans, node) {
+	list_for_each_entry_safe (itr, tmp, &mhi_cntrl->lpm_chans, node) {
 		mutex_lock(&itr->mutex);
 		if (itr->mhi_dev)
 			mhi_notify(itr->mhi_dev, MHI_CB_LPM_EXIT);
@@ -954,10 +936,9 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
 	cur_state = mhi_tryset_pm_state(mhi_cntrl, MHI_PM_M3_EXIT);
 	if (cur_state != MHI_PM_M3_EXIT) {
 		write_unlock_irq(&mhi_cntrl->pm_lock);
-		MHI_LOG(
-			 "Error setting to PM state: %s from: %s\n",
-			 to_mhi_pm_state_str(MHI_PM_M3_EXIT),
-			 to_mhi_pm_state_str(mhi_cntrl->pm_state));
+		MHI_LOG("Error setting to PM state: %s from: %s\n",
+			to_mhi_pm_state_str(MHI_PM_M3_EXIT),
+			to_mhi_pm_state_str(mhi_cntrl->pm_state));
 		return -EIO;
 	}
 
@@ -965,17 +946,17 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
 	mhi_set_mhi_state(mhi_cntrl, MHI_STATE_M0);
 	write_unlock_irq(&mhi_cntrl->pm_lock);
 
-	ret = wait_event_timeout(mhi_cntrl->state_event,
-				 mhi_cntrl->dev_state == MHI_STATE_M0 ||
-				 mhi_cntrl->dev_state == MHI_STATE_M2 ||
-				 MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
-				 msecs_to_jiffies(mhi_cntrl->timeout_ms));
+	ret = wait_event_timeout(
+		mhi_cntrl->state_event,
+		mhi_cntrl->dev_state == MHI_STATE_M0 ||
+			mhi_cntrl->dev_state == MHI_STATE_M2 ||
+			MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
+		msecs_to_jiffies(mhi_cntrl->timeout_ms));
 
 	if (!ret || MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state)) {
 		if (mhi_in_rddm(mhi_cntrl))
 			return 0;
-		MHI_ERR(
-			"Did not enter M0 state, MHI state: %s, PM state: %s\n",
+		MHI_ERR("Did not enter M0 state, MHI state: %s, PM state: %s\n",
 			TO_MHI_STATE_STR(mhi_cntrl->dev_state),
 			to_mhi_pm_state_str(mhi_cntrl->pm_state));
 		return -EIO;
@@ -1002,10 +983,11 @@ int __mhi_device_get_sync(struct mhi_controller *mhi_cntrl)
 
 	mhi_force_reg_write(mhi_cntrl);
 
-	ret = wait_event_timeout(mhi_cntrl->state_event,
-				 mhi_cntrl->pm_state == MHI_PM_M0 ||
-				 MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
-				 msecs_to_jiffies(mhi_cntrl->timeout_ms));
+	ret = wait_event_timeout(
+		mhi_cntrl->state_event,
+		mhi_cntrl->pm_state == MHI_PM_M0 ||
+			MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
+		msecs_to_jiffies(mhi_cntrl->timeout_ms));
 
 	if (!ret || MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state)) {
 		read_lock_bh(&mhi_cntrl->pm_lock);
@@ -1103,7 +1085,8 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
 		mhi_cntrl->wake_get = mhi_assert_dev_wake;
 		mhi_cntrl->wake_put = mhi_deassert_dev_wake;
 		mhi_cntrl->wake_toggle = (mhi_cntrl->db_access & MHI_PM_M2) ?
-			mhi_toggle_dev_wake_nop : mhi_toggle_dev_wake;
+						 mhi_toggle_dev_wake_nop :
+						 mhi_toggle_dev_wake;
 	}
 
 	mutex_lock(&mhi_cntrl->pm_mutex);
@@ -1135,16 +1118,14 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
 
 	if (state == MHI_STATE_SYS_ERR) {
 		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
-		ret = wait_event_timeout(mhi_cntrl->state_event,
-				MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
-					mhi_read_reg_field(mhi_cntrl,
-							   mhi_cntrl->regs,
-							   MHICTRL,
-							   MHICTRL_RESET_MASK,
-							   MHICTRL_RESET_SHIFT,
-							   &val) ||
-					!val,
-				msecs_to_jiffies(mhi_cntrl->timeout_ms));
+		ret = wait_event_timeout(
+			mhi_cntrl->state_event,
+			MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
+				mhi_read_reg_field(mhi_cntrl, mhi_cntrl->regs,
+						   MHICTRL, MHICTRL_RESET_MASK,
+						   MHICTRL_RESET_SHIFT, &val) ||
+				!val,
+			msecs_to_jiffies(mhi_cntrl->timeout_ms));
 		if (!ret) {
 			ret = -EIO;
 			MHI_LOG("Failed to reset MHI due to syserr state\n");
@@ -1159,8 +1140,8 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
 	}
 
 	/* Transition to next state */
-	next_state = MHI_IN_PBL(current_ee) ?
-		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
+	next_state = MHI_IN_PBL(current_ee) ? DEV_ST_TRANSITION_PBL :
+					      DEV_ST_TRANSITION_READY;
 
 	mhi_queue_state_transition(mhi_cntrl, next_state);
 
@@ -1187,7 +1168,7 @@ void mhi_power_down(struct mhi_controller *mhi_cntrl, bool graceful)
 
 	/* If it's not a graceful shutdown, force MHI to linkdown state */
 	transition_state = (graceful) ? MHI_PM_SHUTDOWN_PROCESS :
-			   MHI_PM_LD_ERR_FATAL_DETECT;
+					MHI_PM_LD_ERR_FATAL_DETECT;
 
 	mutex_lock(&mhi_cntrl->pm_mutex);
 	write_lock_irq(&mhi_cntrl->pm_lock);
@@ -1230,7 +1211,7 @@ int mhi_sync_power_up(struct mhi_controller *mhi_cntrl)
 
 	wait_event_timeout(mhi_cntrl->state_event,
 			   MHI_IN_MISSION_MODE(mhi_cntrl->ee) ||
-			   MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
+				   MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
 			   msecs_to_jiffies(mhi_cntrl->timeout_ms));
 
 	ret = (MHI_IN_MISSION_MODE(mhi_cntrl->ee)) ? 0 : -ETIMEDOUT;
