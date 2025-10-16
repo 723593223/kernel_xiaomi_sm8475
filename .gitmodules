@@ -1,0 +1,6 @@
+[submodule "MODULES/Baseband-guard"]
+	path = MODULES/Baseband-guard
+	url = https://github.com/vc-teahouse/Baseband-guard.git
+[submodule "MODULES/KernelSU"]
+	path = MODULES/KernelSU
+	url = https://github.com/tiann/KernelSU.git
